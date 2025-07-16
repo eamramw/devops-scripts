@@ -10,7 +10,8 @@ This repository contains utility scripts and Jenkins pipelines designed for syst
 devops-scripts/
 ├── jenkins/
 │   └── pipelines/
-│       └── free_space_threshold_jenkinsfile    # Jenkins pipeline for disk-space and log analysis
+│   |   └── free_space_threshold_jenkinsfile    # Jenkins pipeline for disk-space and log analysis
+|   └── jcasc
 └── scripts/
     └── python/
         └── check_disk_and_logs.py             # Python script performing the actual check
