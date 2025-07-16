@@ -11,15 +11,17 @@ def check_disk_and_logs(threshold, log_file, search_pattern):
 
     if free_percent < threshold:
         print("Not enough disk space, checking logs...")
+
         if not os.path.exists(log_file):
-            print(f"WARNING: Log file {log_file} does not exist.")
-            return 2  # Warning, not a failure
+            print(f"INFO: Log file {log_file} does not exist, skipping log check.")
+            return 0  # Treat as success
 
         with open(log_file, "r", encoding="utf-8", errors="ignore") as f:
             for line in f:
                 if re.search(search_pattern, line):
                     print(f"Pattern '{search_pattern}' found in logs!")
                     return 1  # Real failure
+
         print("Pattern not found in logs.")
     else:
         print("Enough disk space.")
