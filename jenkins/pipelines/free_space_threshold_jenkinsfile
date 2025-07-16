@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'FREE_SPACE_THRESHOLD', defaultValue: '70', description: 'Required free disk space (%)')
-        string(name: 'LOG_FILE', defaultValue: '/var/log/syslog', description: 'Log file to scan')
-        string(name: 'SEARCH_PATTERN', defaultValue: 'CoreDump', description: 'Pattern to search in log')
+        string(name: 'FREE_SPACE_THRESHOLD', defaultValue: '70')
+        string(name: 'LOG_FILE', defaultValue: '/var/log/syslog')
+        string(name: 'SEARCH_PATTERN', defaultValue: 'CoreDump')
     }
 
     triggers {
-        cron('* * * * *') // every minute; adjust as needed
+        cron('* * * * *')
     }
 
     options {
@@ -17,10 +17,9 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Self') {
+        stage('Checkout Repo') {
             steps {
-                // This will pull the repo containing both Jenkinsfile & Python scripts
-                checkout scm
+                git branch: 'main', url: 'https://github.com/eamramw/devops-scripts.git'
             }
         }
 
@@ -28,14 +27,15 @@ pipeline {
             steps {
                 script {
                     def status = sh(
-                        script: "python3 scripts/python/check_disk_and_logs.py ${params.FREE_SPACE_THRESHOLD} ${params.LOG_FILE} '${params.SEARCH_PATTERN}'",
+                        script: "python3 scripts/python/check_disk_and_logs.py " +
+                                "${params.FREE_SPACE_THRESHOLD} ${params.LOG_FILE} '${params.SEARCH_PATTERN}'",
                         returnStatus: true
                     )
 
                     if (status == 1) {
-                        error("Disk check failed: Pattern found in logs")
+                        error("❌ Disk check failed: Pattern found in logs")
                     } else {
-                        echo "Check completed successfully"
+                        echo "✅ Check completed successfully"
                     }
                 }
             }
@@ -45,3 +45,9 @@ pipeline {
     post {
         success {
             echo "✅ Build successful"
+        }
+        failure {
+            echo "❌ Build failed – please investigate"
+        }
+    }
+}
